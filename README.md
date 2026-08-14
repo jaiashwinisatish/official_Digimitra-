@@ -1,85 +1,51 @@
-# 🎓 DigiMitra — Digital Learning Platform for Students
-
 <div align="center">
 
-![DigiMitra Banner](https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&q=80&w=1200&h=300)
+# 🎓 DigiMitra
 
-**An AI-powered e-learning platform built for Maharashtra students (Class 8–10)**  
-*Learn MS Word, Computer Fundamentals & more — in English and मराठी*
+### *Empowering Rural Students with Digital Education*
 
-[![React](https://img.shields.io/badge/React-18-blue?logo=react)](https://react.dev)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?logo=typescript)](https://typescriptlang.org)
-[![Supabase](https://img.shields.io/badge/Supabase-Database-green?logo=supabase)](https://supabase.com)
-[![Vite](https://img.shields.io/badge/Vite-5-purple?logo=vite)](https://vitejs.dev)
-[![TailwindCSS](https://img.shields.io/badge/Tailwind-CSS-cyan?logo=tailwindcss)](https://tailwindcss.com)
+<br/>
+
+[![React](https://img.shields.io/badge/React-18-61DAFB?style=for-the-badge&logo=react&logoColor=white)](https://react.dev)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://typescriptlang.org)
+[![Vite](https://img.shields.io/badge/Vite-5-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev)
+[![Supabase](https://img.shields.io/badge/Supabase-Database-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)](https://supabase.com)
+[![Tailwind CSS](https://img.shields.io/badge/TailwindCSS-3-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
+[![Vercel](https://img.shields.io/badge/Deployed-Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://vercel.com)
+
+<br/>
+
+> **DigiMitra** is a full-stack bilingual e-learning platform built for Class 8–10 rural school students.  
+> Students learn Computer Science through video lessons, AI-graded practicals, and earn verified certificates —  
+> all in **English and Marathi** 🇮🇳
+
+<br/>
 
 </div>
 
 ---
 
-## ✨ Features
+## 📸 Platform Highlights
 
 | Feature | Description |
 |---------|-------------|
-| 🎥 **Video Lessons** | YouTube-integrated lessons with watch progress tracking |
-| 🤖 **AI Chatbot** | Ask questions in English or मराठी — get instant answers |
-| 📊 **Real-Time Progress** | Per-lesson watch %, completion status saved to Supabase |
-| 📝 **Practical Tasks** | Submit assignments, get AI grading & feedback instantly |
-| 🏆 **Certificates** | Auto-generated certificate on 100% course completion |
-| 🌐 **Bilingual** | Full English + मराठी language support |
-| 🔐 **Auth** | Supabase Auth — secure sign up & login |
-| 📱 **Responsive** | Works on mobile, tablet, and desktop |
-
----
-
-## 🛠️ Tech Stack
-
-```
-Frontend   → React 18 + TypeScript + Vite
-Styling    → TailwindCSS + shadcn/ui components
-Database   → Supabase (PostgreSQL) — real-time
-Auth       → Supabase Auth (email/password)
-AI         → Custom AI chatbot + video summary engine
-State      → React Context API
-Routing    → React Router v6
-```
-
----
-
-## 📂 Project Structure
-
-```
-src/
-├── components/       # Reusable UI components (Chatbot, Navbar, etc.)
-├── context/          # AuthContext, LanguageContext
-├── data/             # Course data, lessons, practical tasks
-├── hooks/            # Custom React hooks
-├── layouts/          # Page layouts
-├── lib/              # Supabase client config
-├── pages/            # All pages (Home, Dashboard, Register, Login...)
-├── services/         # API service (Supabase integration)
-└── main.tsx          # App entry point
-```
-
----
-
-## 🗄️ Supabase Database Tables
-
-| Table | Purpose |
-|-------|---------|
-| `profiles` | Student details (name, email, mobile, class) |
-| `course_enrollments` | Which student enrolled in which course |
-| `lesson_progress` | Per-lesson watch time & completion % |
-| `practical_submissions` | Submission text + AI grade + feedback |
-| `course_summary` | Overall course completion & certificate status |
+| 🎥 **Video Learning** | Custom YouTube & Google Drive embed player with watch-time tracking |
+| 📊 **Live Progress** | Real-time lesson completion % saved to Supabase database |
+| 🤖 **AI Chatbot** | Bilingual AI tutor answering computer science questions (EN + MR) |
+| ✨ **AI Summaries** | Per-lesson AI-generated study notes in English and Marathi |
+| 📝 **Practical Tasks** | Student submissions with instant AI grading and feedback |
+| 🏆 **Certificates** | Verified certificates with unique IDs after 100% course completion |
+| 🌐 **Bilingual** | Complete English + Marathi support across every screen |
+| 🔐 **Supabase Auth** | Secure signup/login with per-student isolated data |
 
 ---
 
 ## 🚀 Getting Started
 
 ### Prerequisites
-- Node.js 18+
-- A [Supabase](https://supabase.com) account
+- **Node.js** v18+
+- **npm** or **bun**
+- A **Supabase** project (free tier works)
 
 ### 1. Clone the Repository
 ```bash
@@ -92,116 +58,252 @@ cd digimitra
 npm install
 ```
 
-### 3. Configure Environment Variables
-
-Create a `.env` file in the root directory:
+### 3. Set Up Environment Variables
+Create a `.env` file in the root:
 ```env
-VITE_SUPABASE_URL=your_supabase_project_url
-VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_ANON_KEY=your-anon-key-here
 ```
 
 ### 4. Set Up Supabase Database
+Run the SQL below in your **Supabase SQL Editor** (see full setup in the [Database Setup](#-database-setup) section).
 
-Run the following SQL in your **Supabase SQL Editor**:
+### 5. Run Locally
+```bash
+npm run dev
+```
+Open **`http://localhost:8080`** in your browser. 🎉
+
+---
+
+## ✨ Features
+
+### 🔐 Authentication & Student Profiles
+- Secure **Sign Up / Login** via Supabase Auth
+- Student profile stores: Name, Email, Mobile, Class (8th/9th/10th), Language Preference
+- Data automatically saved to `profiles` table in Supabase
+- Offline fallback using `localStorage`
+
+### 📚 Courses Available
+| Course | Lessons | Units | Practicals |
+|--------|---------|-------|------------|
+| **Microsoft Word Masterclass** | 7 screen-recorded lessons | 3 Units | 3 Tasks |
+| **Introduction to Computers** | 30 animated video lessons | 3 Units | 3 Tasks |
+
+### 📈 Real-Time Progress Tracking
+Every student action is saved instantly to Supabase:
+- ⏱️ **Watch time** per lesson (seconds + percentage)
+- ✅ **Lesson completion** (auto-marked at 90% watched)
+- 📋 **Practical submissions** with AI grade & feedback
+- 📊 **Course-level summary** with overall % completion
+
+### 🤖 AI Features
+- **AI Chatbot** — covers CPU, RAM, ROM, I/O devices, MS Word, shortcuts, and more
+- **AI Video Summarizer** — instant bilingual lesson notes with one click (`✨` button)
+- **AI Practical Grader** — evaluates student submissions using keyword analysis
+
+### 🏆 Certificate System
+- **Locked** until student completes 100% videos + all practical tasks
+- Auto-generates PDF-ready certificate with student name, class, course, and unique cert ID
+- Unique verification code: `CERT-DIGI-XXXXXX-XX`
+
+---
+
+## 🗄️ Database Setup
+
+Run this SQL in **Supabase → SQL Editor**:
 
 ```sql
--- profiles table
-CREATE TABLE public.profiles (
+-- 1. Profiles Table (Student Details)
+CREATE TABLE IF NOT EXISTS public.profiles (
   id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
-  name TEXT DEFAULT 'Student',
+  name TEXT NOT NULL DEFAULT 'Student',
   email TEXT,
   mobile TEXT DEFAULT '',
   student_class TEXT DEFAULT 'Class 9th',
   role TEXT DEFAULT 'student',
   language_preference TEXT DEFAULT 'en',
   enrolled_courses TEXT[] DEFAULT ARRAY['course-1', 'course-2'],
+  total_lessons_completed INT DEFAULT 0,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
-
--- Enable Row Level Security
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Users can manage own profile" ON public.profiles FOR ALL USING (auth.uid() = id);
+CREATE POLICY "Users manage own profile" ON public.profiles FOR ALL USING (auth.uid() = id);
+
+-- 2. Lesson Progress Table
+CREATE TABLE IF NOT EXISTS public.lesson_progress (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
+  course_id TEXT NOT NULL, course_title TEXT DEFAULT '',
+  lesson_id TEXT NOT NULL, lesson_title TEXT DEFAULT '',
+  unit_number INT DEFAULT 1, watch_seconds INT DEFAULT 0,
+  total_seconds INT DEFAULT 600, watch_percentage INT DEFAULT 0,
+  completed BOOLEAN DEFAULT FALSE, completed_at TIMESTAMPTZ,
+  last_watched_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(user_id, lesson_id)
+);
+ALTER TABLE public.lesson_progress ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users manage own lesson progress" ON public.lesson_progress FOR ALL USING (true) WITH CHECK (true);
+
+-- 3. Practical Submissions Table
+CREATE TABLE IF NOT EXISTS public.practical_submissions (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
+  course_id TEXT NOT NULL, course_title TEXT DEFAULT '',
+  practical_id TEXT NOT NULL, practical_title TEXT DEFAULT '',
+  unit_number INT DEFAULT 1, submission_text TEXT DEFAULT '',
+  grade INT DEFAULT 0, feedback TEXT DEFAULT '',
+  submitted_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(user_id, practical_id)
+);
+ALTER TABLE public.practical_submissions ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users manage own submissions" ON public.practical_submissions FOR ALL USING (true) WITH CHECK (true);
+
+-- 4. Course Summary Table
+CREATE TABLE IF NOT EXISTS public.course_summary (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
+  course_id TEXT NOT NULL, course_title TEXT DEFAULT '',
+  total_lessons INT DEFAULT 0, completed_lessons INT DEFAULT 0,
+  total_practicals INT DEFAULT 0, completed_practicals INT DEFAULT 0,
+  completion_percentage INT DEFAULT 0, certificate_unlocked BOOLEAN DEFAULT FALSE,
+  last_activity TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(user_id, course_id)
+);
+ALTER TABLE public.course_summary ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users manage own course summary" ON public.course_summary FOR ALL USING (true) WITH CHECK (true);
+
+-- 5. Legacy Progress Blob (fallback)
+CREATE TABLE IF NOT EXISTS public.student_progress (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id TEXT NOT NULL UNIQUE,
+  progress_data TEXT,
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+ALTER TABLE public.student_progress ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users manage own progress" ON public.student_progress FOR ALL USING (true) WITH CHECK (true);
+
+-- 6. Auto-create profile on signup trigger
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS TRIGGER AS $$
+BEGIN
+  INSERT INTO public.profiles (id, name, email, mobile, student_class, role, language_preference)
+  VALUES (
+    NEW.id,
+    COALESCE(NEW.raw_user_meta_data->>'name', split_part(NEW.email, '@', 1)),
+    NEW.email,
+    COALESCE(NEW.raw_user_meta_data->>'mobile', ''),
+    COALESCE(NEW.raw_user_meta_data->>'studentClass', 'Class 9th'),
+    COALESCE(NEW.raw_user_meta_data->>'role', 'student'),
+    COALESCE(NEW.raw_user_meta_data->>'languagePreference', 'en')
+  ) ON CONFLICT (id) DO NOTHING;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+CREATE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
+
+-- 7. Admin Overview (see all students + progress in one view)
+CREATE OR REPLACE VIEW public.admin_student_overview AS
+SELECT p.id AS student_id, p.name AS student_name, p.email, p.mobile,
+  p.student_class, p.language_preference, p.created_at AS registered_at,
+  cs.course_title, cs.completed_lessons, cs.total_lessons,
+  cs.completed_practicals, cs.total_practicals,
+  cs.completion_percentage, cs.certificate_unlocked, cs.last_activity
+FROM public.profiles p
+LEFT JOIN public.course_summary cs ON p.id = cs.user_id
+ORDER BY p.created_at DESC;
 ```
 
-> See full SQL setup in [`supabase_setup.md`](./supabase_setup.md)
+> **Tip:** Disable "Confirm email" in **Supabase → Authentication → Sign In / Providers** for instant sign-up without email verification.
 
-### 5. Run the Development Server
-```bash
-npm run dev
+---
+
+## 🏗️ Tech Stack
+
+| Layer | Technology |
+|-------|------------|
+| **Framework** | React 18 + TypeScript |
+| **Build Tool** | Vite 5 |
+| **Styling** | Tailwind CSS 3 + Shadcn UI |
+| **Icons** | Lucide React |
+| **Database** | Supabase (PostgreSQL) |
+| **Auth** | Supabase Auth |
+| **Routing** | React Router DOM v6 |
+| **State** | TanStack React Query |
+| **Deployment** | Vercel |
+
+---
+
+## 📁 Project Structure
+
 ```
-Open [http://localhost:8080](http://localhost:8080) in your browser.
+digimitra/
+├── src/
+│   ├── components/        # Reusable UI (Navbar, ChatBot, CourseCard…)
+│   ├── context/
+│   │   ├── AuthContext.tsx      # Global auth state + Supabase session
+│   │   └── LanguageContext.tsx  # EN/MR bilingual toggle
+│   ├── data/
+│   │   ├── mockCourses.ts       # Course data, lessons, practicals
+│   │   └── translations.ts      # EN + MR text strings
+│   ├── lib/
+│   │   └── supabase.ts          # Supabase client initialization
+│   ├── pages/
+│   │   ├── Home.tsx             # Landing page
+│   │   ├── Register.tsx         # Student sign-up (Supabase Auth)
+│   │   ├── Login.tsx            # Student login
+│   │   ├── Dashboard.tsx        # Personal progress dashboard
+│   │   ├── Courses.tsx          # Course listing
+│   │   ├── CourseDetail.tsx     # Course overview + enroll
+│   │   ├── VideoPlayer.tsx      # Video lessons + chatbot + practicals
+│   │   └── Certificate.tsx      # Certificate generation & download
+│   └── services/
+│       └── api.ts               # API layer (auth, progress, AI chat/summary)
+├── server/                # Express backend (optional)
+├── public/                # Static assets
+├── .env                   # Environment variables (not committed)
+├── vercel.json            # Vercel deployment config
+└── vite.config.ts         # Vite configuration
+```
 
 ---
 
-## 📸 Pages Overview
+## 🌐 Deployment
 
-| Page | Route | Description |
-|------|-------|-------------|
-| Home | `/` | Landing page with features & course preview |
-| Register | `/register` | Student sign-up (saved to Supabase) |
-| Login | `/login` | Supabase Auth login |
-| Dashboard | `/dashboard` | Progress overview, enrolled courses |
-| Courses | `/courses` | Browse all available courses |
-| Video Player | `/course/:id` | Watch lessons, submit practicals, chat with AI |
-| Certificate | `/certificate/:id` | Download completion certificate |
-| Admin | `/admin` | View all student progress (admin only) |
+This project is **Vercel-ready** out of the box.
+
+1. Fork/clone this repo to your GitHub
+2. Go to [vercel.com](https://vercel.com) → **New Project** → Import from GitHub
+3. Add environment variables:
+   - `VITE_SUPABASE_URL`
+   - `VITE_SUPABASE_ANON_KEY`
+4. Click **Deploy** 🚀
 
 ---
 
-## 🎯 Courses Available
+## 👥 Target Users
 
-### 📘 Course 1: Microsoft Word Masterclass
-- Unit 1: Getting Started (Interface, Ribbon, Toolbar)
-- Unit 2: Font Group & File Management
-- Unit 3: Paragraph Formatting & Layout
-- 7 video lessons + 3 practical tasks
-
-### 💻 Course 2: Introduction to Computers
-- Unit 1: Computer Basics & Generations
-- Unit 2: Memory Systems (RAM, ROM, HDD, SSD)
-- Unit 3: Input & Output Devices
-- 30 video lessons + 3 practical tasks
-
----
-
-## 🌐 Bilingual Support
-
-DigiMitra supports **English** and **मराठी** across:
-- All course titles and descriptions
-- Lesson titles and content
-- Practical task instructions
-- UI navigation and buttons
-- AI chatbot responses
-
----
-
-## 🤖 AI Features
-
-- **AI Chatbot** — Answers student questions about computer science topics
-- **AI Video Summary** — Generates lesson summaries with key points
-- **AI Grader** — Evaluates practical task submissions and gives feedback
-
----
-
-## 🔐 Authentication Flow
-
-1. Student registers with name, email, mobile, class, language
-2. Supabase creates auth user + auto-saves to `profiles` table
-3. Login fetches profile from Supabase for full user data
-4. Session persisted with Supabase `persistSession: true`
+- 🏫 **Students** (Class 8–10) in rural Maharashtra
+- 👨‍🏫 **Teachers** monitoring student progress via Supabase admin view
+- 🏛️ **Schools** deploying DigiMitra as a digital learning platform
 
 ---
 
 ## 📜 License
 
-This project is built for educational purposes.  
-© 2025 DigiMitra Education Platform
+This project is open source and available under the [MIT License](LICENSE).
 
 ---
 
 <div align="center">
-  Made with ❤️ for Maharashtra students
-  <br/>
-  <strong>DigiMitra — शिक्षण, सर्वांसाठी</strong>
+
+Made with ❤️ for rural students of India 🇮🇳
+
+**DigiMitra** — *Bridging the digital divide, one lesson at a time.*
+
 </div>
