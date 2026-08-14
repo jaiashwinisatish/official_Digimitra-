@@ -1,0 +1,62 @@
+[
+    {
+        "question": "What is a computer?",
+        "answer": "A computer is an electronic machine that receives information (input), works with that information (processes it), and then gives a result (output). It helps us do tasks faster and more accurately.",
+        "example": "You type a message on your keyboard (input), the computer turns the letters into digital data (process), and then shows the message on the screen (output)."
+    },
+    {
+        "question": "CPU म्हणजे काय?",
+        "answer": "CPU (सेंट्रल प्रोसेसिंग युनिट) संगणकाचा मेंदू असतो. तो सर्व गणिती प्रक्रिया करतो आणि संगणकातील प्रत्येक कामाचे नियंत्रण करतो.",
+        "example": "जेव्हा तुम्ही संगणकावर गणिताचा प्रश्न टाकता, तेव्हा CPU तो प्रश्न सोडवून उत्तर देते."
+    },
+    {
+        "question": "मॉनिटर काय असतो?",
+        "answer": "मॉनिटर हा एक आउटपुट डिव्हाइस आहे जो स्क्रीनवर मजकूर, चित्रे आणि व्हिडिओ दाखवतो.",
+        "example": "जेव्हा तुम्ही संगणकावर काही शब्द टाइप करता, ते शब्द मॉनिटरच्या स्क्रीनवर दिसतात."
+    },
+    {
+        "question": "What is a keyboard?",
+        "answer": "A keyboard is a device you press keys on to type letters, numbers, and commands into a computer.",
+        "example": "When you write an email, you use the keyboard to type the words."
+    },
+    {
+        "question": "What is a mouse in computers?",
+        "answer": "A mouse is a small device that you move with your hand. It lets you point at things on the screen, click to choose them, and select items.",
+        "example": "To open a program, you move the mouse pointer over the program icon and click the left button."
+    },
+    {
+        "question": "What is RAM and what does it do?",
+        "answer": "RAM (Random Access Memory) is a temporary storage that a computer uses to keep data while it is working. It is very fast, but the information disappears when the computer is turned off.",
+        "example": "When you open a game, the game files are loaded into RAM so the game runs quickly. If you shut down the computer, the game data in RAM is lost."
+    },
+    {
+        "question": "What is a Hard Disk?",
+        "answer": "A hard disk is a device inside a computer that saves data forever. It keeps things like files, videos, and programs even when the computer is turned off.",
+        "example": "When you save a photo on your computer, the hard disk stores it so you can open it later."
+    },
+    {
+        "question": "What is software?",
+        "answer": "Software is a collection of programs that give instructions to a computer on what to do.",
+        "example": "Common software you may use includes Microsoft Word for writing documents, Microsoft Excel for spreadsheets, and web browsers like Chrome or Firefox to visit websites."
+    },
+    {
+        "question": "What is hardware in a computer?",
+        "answer": "Hardware are the physical parts of a computer that you can touch, such as the keyboard, mouse, monitor, and CPU.",
+        "example": "When you type on a keyboard or look at the screen, you are using hardware."
+    },
+    {
+        "question": "What is MS Word?",
+        "answer": "MS Word is a computer program that lets you write and change documents such as letters, resumes, and reports.",
+        "example": "You can open MS Word to type a school report, then save and print it."
+    },
+    {
+        "question": "What is MS Excel used for?",
+        "answer": "MS Excel is a computer program that helps you do calculations, store information, and make tables and charts.",
+        "example": "You can use Excel to add up numbers in a budget, keep a list of student grades, or draw a bar chart showing sales over months."
+    },
+    {
+        "question": "What is MS PowerPoint used for?",
+        "answer": "MS PowerPoint helps you make presentations. You can add slides, pictures, and text to share ideas in class or meetings.",
+        "example": "You create a 5‑slide PowerPoint about the water cycle, using pictures of clouds and short explanations on each slide."
+    }
+]

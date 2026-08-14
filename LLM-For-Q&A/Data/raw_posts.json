@@ -1,0 +1,50 @@
+[
+    {
+        "text": "A computer is an electronic machine that takes input, processes it, and gives output. It helps us perform tasks faster and more accurately.",
+        "engagement": 120
+    },
+    {
+        "text": "CPU (सेंट्रल प्रोसेसिंग युनिट) ला संगणकाचा मेंदू म्हणतात. तो सर्व गणिती प्रक्रिया करतो आणि संगणकातील सर्व कामे नियंत्रित करतो.",
+        "engagement": 200
+    },
+    {
+        "text": "मॉनिटर हे एक आउटपुट डिव्हाइस आहे जे स्क्रीनवर मजकूर, चित्रे आणि व्हिडिओ दाखवते.",
+        "engagement": 150
+    },
+    {
+        "text": "A keyboard is an input device used to type letters, numbers, and commands into the computer.",
+        "engagement": 180
+    },
+    {
+        "text": "A mouse is an input device used to point, click, and select items on the computer screen.",
+        "engagement": 170
+    },
+    {
+        "text": "RAM (Random Access Memory) is temporary memory used by the computer to store data while it is working. It is fast but loses data when power is off.",
+        "engagement": 210
+    },
+    {
+        "text": "Hard Disk is a storage device used to store data permanently in the computer like files, videos, and software.",
+        "engagement": 160
+    },
+    {
+        "text": "Software is a set of programs that tells the computer what to do. Examples include MS Word, Excel, and web browsers.",
+        "engagement": 190
+    },
+    {
+        "text": "Hardware refers to the physical parts of a computer like keyboard, mouse, monitor, and CPU.",
+        "engagement": 175
+    },
+    {
+        "text": "MS Word is a software used to create and edit documents like letters, resumes, and reports.",
+        "engagement": 220
+    },
+    {
+        "text": "MS Excel is a software used for calculations, data storage, and creating tables and charts.",
+        "engagement": 210
+    },
+    {
+        "text": "MS PowerPoint is used to create presentations using slides, images, and text for teaching or meetings.",
+        "engagement": 230
+    }
+]
