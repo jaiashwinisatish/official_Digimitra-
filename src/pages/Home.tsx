@@ -26,7 +26,7 @@ const testimonials = [
     },
   },
   {
-    name: "Sakshi Satish Jaiswal",
+    name: "Sneha Satish Jaiswal",
     role: { en: "Class 9 Student, Kolhapur", mr: "इयत्ता ९ विद्यार्थी, कोल्हापूर" },
     quote: {
       en: "I can study anytime on my phone. The lessons are short and easy to follow.",
