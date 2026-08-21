@@ -1,9 +1,9 @@
 streamlit
-langchain_groq
-langchain-openai
+langchain-groq
+langchain-openrouter
 python-dotenv
 langchain
-langchain_core
+langchain-core
 openai
 flask
 flask-cors
