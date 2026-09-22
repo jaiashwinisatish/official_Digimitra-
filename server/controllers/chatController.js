@@ -78,36 +78,18 @@ const cleanResponse = (text) => {
 // @access  Private
 const getChatResponse = async (req, res) => {
   try {
-    const { message } = req.body;
+    const question = req.body.question || req.body.message;
     
-    if (!message) {
-      return res.status(400).json({ message: 'Please provide a message' });
+    if (!question) {
+      return res.status(400).json({ message: 'Please provide a message or question' });
     }
 
-    const language = extractLanguage(message);
-    const cleanedQuestion = cleanQuery(message);
-    const prompt = getPrompt(cleanedQuestion, language);
-
-    const response = await axios.post('https://openrouter.ai/api/v1/chat/completions', {
-      model: "openrouter/free",
-      messages: [
-        { role: "user", content: prompt }
-      ]
-    }, {
-      headers: {
-        'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
-        'Content-Type': 'application/json',
-        'HTTP-Referer': 'https://digimitra.org', // Optional, for OpenRouter tracking
-        'X-Title': 'Digimitra'
-      }
-    });
-
-    const aiMessage = response.data.choices[0].message.content;
-    const finalAnswer = cleanResponse(aiMessage.split("Answer:").pop());
+    const llmApiUrl = process.env.LLM_API_URL || 'http://localhost:8000/ask';
+    const response = await axios.post(llmApiUrl, { question });
 
     res.json({ 
-      answer: finalAnswer,
-      language: language 
+      answer: response.data.answer,
+      question: response.data.question
     });
 
   } catch (error) {

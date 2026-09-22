@@ -432,8 +432,25 @@ const API = {
     const currentUserId = getCurrentUserId();
 
     // ── Chatbot ──
-    if (url.includes('/chat')) {
-      const answer = generateAIChatResponse(body?.message || '');
+    if (url.includes('/chat') || url.includes('/ask')) {
+      const question = body?.question || body?.message || '';
+      try {
+        const llmApiUrl = (import.meta as any).env?.VITE_LLM_API_URL || 'http://localhost:8000/ask';
+        const res = await fetch(llmApiUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ question })
+        });
+        if (res.ok) {
+          const llmData = await res.json();
+          if (llmData && llmData.answer) {
+            return { data: { answer: llmData.answer, question: llmData.question }, status: 200 };
+          }
+        }
+      } catch (err) {
+        console.warn('LLM-For-QA API connection issue, using fallback:', err);
+      }
+      const answer = generateAIChatResponse(question);
       return { data: { answer }, status: 200 };
     }
 

@@ -13,6 +13,205 @@ interface Message {
   time: string;
 }
 
+// Helper to parse inline markdown (bold, italic, code, links)
+const parseInline = (text: string): React.ReactNode[] => {
+  if (!text) return [];
+
+  const regex = /(\*\*[^*]+\*\*|__[^_]+__|`[^`]+`|\[[^\]]+\]\(https?:\/\/[^\s)]+\)|https?:\/\/[^\s<]+|\*[^*]+\*|_[^_]+_)/g;
+  const parts: React.ReactNode[] = [];
+  let lastIndex = 0;
+  let match: RegExpExecArray | null;
+
+  while ((match = regex.exec(text)) !== null) {
+    if (match.index > lastIndex) {
+      parts.push(text.substring(lastIndex, match.index));
+    }
+
+    const token = match[0];
+    const key = `inline-${match.index}`;
+
+    if ((token.startsWith('**') && token.endsWith('**')) || (token.startsWith('__') && token.endsWith('__'))) {
+      const inner = token.slice(2, -2);
+      parts.push(<strong key={key} className="font-semibold text-foreground">{parseInline(inner)}</strong>);
+    } else if (token.startsWith('`') && token.endsWith('`')) {
+      const inner = token.slice(1, -1);
+      parts.push(
+        <code key={key} className="bg-muted px-1.5 py-0.5 rounded text-[11px] font-mono border border-border/50 text-foreground">
+          {inner}
+        </code>
+      );
+    } else if (token.startsWith('[') && token.includes('](')) {
+      const linkMatch = token.match(/^\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)$/);
+      if (linkMatch) {
+        parts.push(
+          <a
+            key={key}
+            href={linkMatch[2]}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-primary underline underline-offset-2 hover:opacity-80 transition-opacity font-medium"
+          >
+            {linkMatch[1]}
+          </a>
+        );
+      } else {
+        parts.push(token);
+      }
+    } else if (token.startsWith('http://') || token.startsWith('https://')) {
+      parts.push(
+        <a
+          key={key}
+          href={token}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-primary underline underline-offset-2 hover:opacity-80 transition-opacity font-medium break-all"
+        >
+          {token}
+        </a>
+      );
+    } else if ((token.startsWith('*') && token.endsWith('*')) || (token.startsWith('_') && token.endsWith('_'))) {
+      const inner = token.slice(1, -1);
+      parts.push(<em key={key} className="italic">{inner}</em>);
+    } else {
+      parts.push(token);
+    }
+
+    lastIndex = regex.lastIndex;
+  }
+
+  if (lastIndex < text.length) {
+    parts.push(text.substring(lastIndex));
+  }
+
+  return parts;
+};
+
+// Helper to format block elements (paragraphs, lists, headings, code blocks)
+const renderFormattedText = (text: string) => {
+  if (!text) return null;
+
+  const lines = text.replace(/\r\n/g, '\n').split('\n');
+  const blocks: React.ReactNode[] = [];
+
+  let currentList: { type: 'ul' | 'ol'; items: string[] } | null = null;
+  let inCodeBlock = false;
+  let codeBlockLines: string[] = [];
+
+  const flushList = (key: string | number) => {
+    if (currentList) {
+      if (currentList.type === 'ul') {
+        blocks.push(
+          <ul key={`ul-${key}`} className="list-disc pl-5 my-1.5 space-y-1 text-foreground">
+            {currentList.items.map((item, idx) => (
+              <li key={idx} className="leading-relaxed break-words">
+                {parseInline(item)}
+              </li>
+            ))}
+          </ul>
+        );
+      } else {
+        blocks.push(
+          <ol key={`ol-${key}`} className="list-decimal pl-5 my-1.5 space-y-1 text-foreground">
+            {currentList.items.map((item, idx) => (
+              <li key={idx} className="leading-relaxed break-words">
+                {parseInline(item)}
+              </li>
+            ))}
+          </ol>
+        );
+      }
+      currentList = null;
+    }
+  };
+
+  const flushCodeBlock = (key: string | number) => {
+    if (codeBlockLines.length > 0) {
+      blocks.push(
+        <pre key={`code-${key}`} className="bg-muted/80 p-2.5 rounded-lg text-xs font-mono overflow-x-auto my-2 border border-border/50 text-foreground max-w-full">
+          <code>{codeBlockLines.join('\n')}</code>
+        </pre>
+      );
+      codeBlockLines = [];
+    }
+  };
+
+  lines.forEach((line, index) => {
+    const trimmed = line.trim();
+
+    if (trimmed.startsWith('```')) {
+      if (inCodeBlock) {
+        inCodeBlock = false;
+        flushCodeBlock(index);
+      } else {
+        flushList(index);
+        inCodeBlock = true;
+      }
+      return;
+    }
+
+    if (inCodeBlock) {
+      codeBlockLines.push(line);
+      return;
+    }
+
+    const bulletMatch = line.match(/^[\s\t]*[-*•–—]\s+(.*)/);
+    const numberMatch = line.match(/^[\s\t]*\d+[\.\)]\s+(.*)/);
+
+    if (bulletMatch) {
+      if (currentList && currentList.type !== 'ul') {
+        flushList(index);
+      }
+      if (!currentList) {
+        currentList = { type: 'ul', items: [] };
+      }
+      currentList.items.push(bulletMatch[1]);
+      return;
+    }
+
+    if (numberMatch) {
+      if (currentList && currentList.type !== 'ol') {
+        flushList(index);
+      }
+      if (!currentList) {
+        currentList = { type: 'ol', items: [] };
+      }
+      currentList.items.push(numberMatch[1]);
+      return;
+    }
+
+    flushList(index);
+
+    if (trimmed === '') {
+      blocks.push(<div key={`blank-${index}`} className="h-1.5" />);
+      return;
+    }
+
+    const headingMatch = line.match(/^(#{1,4})\s+(.*)/);
+    if (headingMatch) {
+      const level = headingMatch[1].length;
+      const headingText = headingMatch[2];
+      const fontClass = level === 1 ? "text-base font-bold my-2" : level === 2 ? "text-sm font-bold my-1.5" : "text-sm font-semibold my-1";
+      blocks.push(
+        <div key={`h-${index}`} className={cn("text-foreground", fontClass)}>
+          {parseInline(headingText)}
+        </div>
+      );
+      return;
+    }
+
+    blocks.push(
+      <p key={`p-${index}`} className="my-1 leading-relaxed break-words text-foreground">
+        {parseInline(line)}
+      </p>
+    );
+  });
+
+  flushList('end');
+  flushCodeBlock('end');
+
+  return <div className="space-y-0.5">{blocks}</div>;
+};
+
 export const Chatbot = () => {
   const { language } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
@@ -47,7 +246,7 @@ export const Chatbot = () => {
 
     setIsLoading(true);
     try {
-      const { data } = await API.post("/chat", { message: userMsg });
+      const { data } = await API.post("/ask", { question: userMsg });
       setMessages(prev => [...prev, {
         text: data.answer,
         isBot: true,
@@ -93,7 +292,7 @@ export const Chatbot = () => {
             </div>
 
             {/* Messages */}
-            <div 
+            <div
               ref={scrollRef}
               className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar bg-muted/20"
             >
@@ -103,17 +302,21 @@ export const Chatbot = () => {
                   initial={{ opacity: 0, x: msg.isBot ? -10 : 10 }}
                   animate={{ opacity: 1, x: 0 }}
                   className={cn(
-                    "flex flex-col max-w-[80%]",
+                    "flex flex-col max-w-[85%]",
                     msg.isBot ? "self-start" : "self-end items-end"
                   )}
                 >
                   <div className={cn(
-                    "p-3 rounded-2xl text-sm shadow-sm",
-                    msg.isBot 
-                      ? "bg-card border border-border rounded-tl-none" 
+                    "p-3 rounded-2xl text-sm shadow-sm leading-relaxed overflow-hidden break-words",
+                    msg.isBot
+                      ? "bg-card border border-border rounded-tl-none text-foreground"
                       : "gradient-primary text-primary-foreground rounded-tr-none"
                   )}>
-                    {msg.text}
+                    {msg.isBot ? (
+                      renderFormattedText(msg.text)
+                    ) : (
+                      <div className="whitespace-pre-wrap break-words">{msg.text}</div>
+                    )}
                   </div>
                   <span className="text-[10px] text-muted-foreground mt-1 px-1">{msg.time}</span>
                 </motion.div>
@@ -131,8 +334,8 @@ export const Chatbot = () => {
             {messages.length <= 2 && (
               <div className="px-4 py-2 border-t border-border/50 bg-muted/10 flex flex-wrap gap-1.5">
                 {(language === "en"
-                  ? ["What is a computer?", "MS Word shortcuts", "How to get certificate?", "Help"]
-                  : ["संगणक म्हणजे काय?", "शॉर्टकट", "प्रमाणपत्र", "मदत"]
+                  ? ["What is a computer?", "MS Word shortcuts", "What is RAM?", "What is Processor?"]
+                  : ["संगणक म्हणजे काय?", "MS Word शॉर्टकट", "रॅम म्हणजे काय?", "प्रोसेसर म्हणजे काय?"]
                 ).map((q) => (
                   <button
                     key={q}
@@ -154,9 +357,9 @@ export const Chatbot = () => {
                   placeholder={language === "en" ? "Ask a question..." : "प्रश्न विचारा..."}
                   className="pr-12 rounded-xl h-11 bg-muted/30 focus-visible:ring-primary/20"
                 />
-                <Button 
-                  type="submit" 
-                  size="icon" 
+                <Button
+                  type="submit"
+                  size="icon"
                   disabled={isLoading}
                   className="absolute right-1 h-9 w-9 rounded-lg gradient-primary shadow-glow-sm"
                 >
