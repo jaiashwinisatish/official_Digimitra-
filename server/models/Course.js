@@ -27,6 +27,18 @@ const assignmentSchema = new mongoose.Schema({
   correctAnswer: { type: Number, required: true } // Index of options
 });
 
+const unitSchema = new mongoose.Schema({
+  unitNumber: { type: Number, required: true },
+  title: {
+    en: { type: String, required: true },
+    mr: { type: String, required: true }
+  },
+  description: {
+    en: { type: String },
+    mr: { type: String }
+  }
+}, { _id: false });
+
 const courseSchema = new mongoose.Schema({
   title: {
     en: { type: String, required: true },
@@ -49,6 +61,7 @@ const courseSchema = new mongoose.Schema({
     default: 10
   },
   thumbnail: { type: String, required: true },
+  units: [unitSchema],
   lessons: [lessonSchema],
   assignments: [assignmentSchema]
 }, {
