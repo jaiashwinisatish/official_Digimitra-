@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { useRef } from "react";
 import { useParams, Link } from "react-router-dom";
 import { INITIAL_MOCK_COURSES, getUserProgress } from "@/data/mockCourses";
+import { downloadCertificatePDF } from "@/utils/certificatePdf";
 
 const Certificate = () => {
   const { t, language } = useLanguage();
@@ -44,6 +45,22 @@ const Certificate = () => {
     month: 'long',
     day: 'numeric'
   });
+
+  const handlePdfDownload = () => {
+    if (!isUnlocked) {
+      toast.error(language === "en" ? "Certificate is locked until you complete 100% of the course!" : "अभ्यासक्रम १००% पूर्ण करेपर्यंत प्रमाणपत्र लॉक केलेले आहे!");
+      return;
+    }
+    toast.info(language === "en" ? "Generating certificate PDF..." : "प्रमाणपत्र PDF तयार होत आहे...");
+    downloadCertificatePDF({
+      studentName,
+      studentClass,
+      courseTitle,
+      certificateId,
+      completionDate: currentDate,
+    });
+    toast.success(language === "en" ? "Certificate downloaded as PDF!" : "प्रमाणपत्र PDF डाउनलोड झाले!");
+  };
 
   const handlePrintDownload = () => {
     if (!isUnlocked) {
@@ -207,9 +224,12 @@ const Certificate = () => {
             </div>
           </motion.div>
 
-          <div className="flex justify-center gap-4 mt-10 print:hidden">
-            <Button variant="hero" size="lg" className="rounded-xl px-8" onClick={handlePrintDownload}>
-              <Printer className="h-4 w-4 mr-2" /> Download / Print Certificate
+          <div className="flex flex-wrap justify-center gap-4 mt-10 print:hidden">
+            <Button variant="hero" size="lg" className="rounded-xl px-8" onClick={handlePdfDownload}>
+              <Download className="h-4 w-4 mr-2" /> {language === "en" ? "Download PDF Certificate" : "PDF प्रमाणपत्र डाउनलोड करा"}
+            </Button>
+            <Button variant="outline" size="lg" className="rounded-xl px-6" onClick={handlePrintDownload}>
+              <Printer className="h-4 w-4 mr-2" /> {language === "en" ? "Print Certificate" : "प्रमाणपत्र प्रिंट करा"}
             </Button>
             <Button variant="outline" size="lg" className="rounded-xl px-6" onClick={handleShare}>
               <Share2 className="h-4 w-4 mr-2" /> {t("share")}

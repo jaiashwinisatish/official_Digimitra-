@@ -166,16 +166,18 @@ export const VideoPlayer = () => {
       return;
     }
     try {
-      toast.info(language === "en" ? "Generating certificate..." : "प्रमाणपत्र तयार होत आहे...");
+      toast.info(language === "en" ? "Generating certificate PDF..." : "प्रमाणपत्र PDF तयार होत आहे...");
       const response = await API.get(`/certificate/${id}`, { responseType: 'blob' });
-      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const url = window.URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }));
       const link = document.createElement('a');
       link.href = url;
-      link.setAttribute('download', `certificate-${user?.name || 'student'}.html`);
+      const safeName = (user?.name || 'student').replace(/[^a-zA-Z0-9_-]/g, '_');
+      link.setAttribute('download', `certificate-${safeName}.pdf`);
       document.body.appendChild(link);
       link.click();
       link.remove();
-      toast.success(language === "en" ? "Certificate downloaded!" : "प्रमाणपत्र डाउनलोड झाले!");
+      window.URL.revokeObjectURL(url);
+      toast.success(language === "en" ? "Certificate downloaded as PDF!" : "प्रमाणपत्र PDF डाउनलोड झाले!");
     } catch (error: any) {
       toast.error(error?.response?.data?.message || (language === "en" ? "Certificate is locked!" : "प्रमाणपत्र लॉक आहे!"));
     }

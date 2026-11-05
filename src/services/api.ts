@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase';
+import { createCertificatePDF } from '@/utils/certificatePdf';
 import {
   INITIAL_MOCK_COURSES,
   getUserProgress,
@@ -407,22 +408,15 @@ const API = {
       const date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
       const courseTitle = targetCourse.title?.en || "Course";
 
-      const certHtml = `
-        <html><body style="font-family:Georgia,serif;text-align:center;padding:40px;border:4px double #6366f1;">
-          <h3 style="letter-spacing:6px;color:#6366f1;">DIGIMITRA E-LEARNING PLATFORM</h3>
-          <h1 style="font-size:40px;color:#1e293b;">Certificate of Completion</h1>
-          <p style="font-size:18px;color:#64748b;">This is to certify that</p>
-          <h2 style="font-size:36px;color:#1e293b;">${user.name}</h2>
-          <p style="font-size:16px;color:#6366f1;font-weight:bold;">${user.studentClass}</p>
-          <p style="font-size:18px;color:#64748b;">has successfully completed the course</p>
-          <h3 style="font-size:28px;color:#16a34a;">${courseTitle}</h3>
-          <br/><hr style="border:1px solid #e2e8f0;max-width:400px;margin:auto;"/>
-          <p style="color:#94a3b8;">Date: ${date} | Certificate ID: ${certId}</p>
-          <p style="color:#94a3b8;">Verified by DigiMitra Platform</p>
-        </body></html>
-      `;
-      const blob = new Blob([certHtml], { type: 'text/html' });
-      return { data: blob, status: 200 };
+      const pdfBlob = createCertificatePDF({
+        studentName: user.name || 'Student',
+        studentClass: user.studentClass || 'Class 9th',
+        courseTitle,
+        certificateId: certId,
+        completionDate: date,
+      });
+
+      return { data: pdfBlob, status: 200 };
     }
 
     return { data: [], status: 200 };

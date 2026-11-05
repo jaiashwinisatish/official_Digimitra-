@@ -61,6 +61,7 @@
     "helmet": "^8.1.0",
     "input-otp": "^1.4.2",
     "jsonwebtoken": "^9.0.3",
+    "jspdf": "^4.2.1",
     "lucide-react": "^0.462.0",
     "mongoose": "^9.6.1",
     "next-themes": "^0.3.0",
