@@ -492,85 +492,115 @@ const API = {
       return { data: studentUser, status: 200 };
     }
 
-    // ── Registration (Supabase Auth + profiles table) ──
+    // ── Registration (Supabase Auth + profiles table + LocalStorage fallback) ──
     if (url.includes('/auth/register')) {
-      // Step 1: Create real Supabase auth user
-      const { data: authData, error: signUpError } = await supabase.auth.signUp({
-        email: body.email,
-        password: body.password,
-        options: {
-          data: {
-            name: body.name || 'Student',
-            mobile: body.mobile || '',
-            studentClass: body.studentClass || 'Class 9th',
-            role: 'student',
-            languagePreference: body.languagePreference || 'en',
-          },
-        },
-      });
+      const email = (body.email || '').trim().toLowerCase();
+      const password = (body.password || '').trim();
+      const name = (body.name || 'Student').trim();
+      const mobile = (body.mobile || '').trim();
+      const studentClass = body.studentClass || 'Class 9th';
+      const languagePreference = body.languagePreference || 'en';
 
-      if (signUpError) {
-        throw { response: { data: { message: signUpError.message } } };
+      if (!email || !password) {
+        throw { response: { data: { message: 'Email and password are required.' } } };
       }
 
-      const supabaseUser = authData.user;
-      const session = authData.session;
-      const realUserId = supabaseUser?.id || `user-${Date.now()}`;
+      // Check local storage for existing user with same email
+      const usersKey = 'digimitra_users';
+      const users = JSON.parse(localStorage.getItem(usersKey) || '[]');
+      const existingUser = users.find((u: any) => u.email?.trim().toLowerCase() === email);
+      if (existingUser) {
+        throw { response: { data: { message: 'An account with this email already exists. Please login instead.' } } };
+      }
 
-      // Step 2: Save ALL user details to Supabase profiles table
-      const { error: profileError } = await supabase.from('profiles').upsert({
-        id: realUserId,
-        name: body.name || 'Student',
-        email: body.email || '',
-        mobile: body.mobile || '',
-        student_class: body.studentClass || 'Class 9th',
-        role: 'student',
-        language_preference: body.languagePreference || 'en',
-        enrolled_courses: ['course-1', 'course-2'],
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      }, { onConflict: 'id' });
+      let realUserId = `user-${Date.now()}`;
+      let token = `jwt-token-${Date.now()}`;
 
-      if (profileError) {
-        console.error('Profile save error:', profileError.message);
+      // Step 1: Attempt Supabase registration if network/service available
+      try {
+        const { data: authData, error: signUpError } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            data: {
+              name,
+              mobile,
+              studentClass,
+              role: 'student',
+              languagePreference,
+            },
+          },
+        });
+
+        if (signUpError) {
+          if (signUpError.message?.toLowerCase().includes('already registered')) {
+            throw { response: { data: { message: 'An account with this email already exists. Please login instead.' } } };
+          }
+          console.warn('Supabase sign-up error, continuing with local storage fallback:', signUpError.message);
+        } else if (authData?.user) {
+          realUserId = authData.user.id || realUserId;
+          if (authData.session?.access_token) {
+            token = authData.session.access_token;
+          }
+
+          // Step 2: Save user details to Supabase profiles table
+          try {
+            await supabase.from('profiles').upsert({
+              id: realUserId,
+              name,
+              email,
+              mobile,
+              student_class: studentClass,
+              role: 'student',
+              language_preference: languagePreference,
+              enrolled_courses: ['course-1', 'course-2'],
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+            }, { onConflict: 'id' });
+          } catch (profileError: any) {
+            console.warn('Profile save warning:', profileError?.message || profileError);
+          }
+        }
+      } catch (err: any) {
+        if (err?.response) throw err;
+        console.warn('Supabase service unavailable, registering student locally:', err?.message || err);
       }
 
       const studentUser = {
         _id: realUserId,
-        name: body.name || 'Student',
-        email: body.email || '',
-        mobile: body.mobile || '',
-        studentClass: body.studentClass || 'Class 9th',
+        name,
+        email,
+        mobile,
+        studentClass,
         role: 'student',
-        languagePreference: body.languagePreference || 'en',
-        token: session?.access_token || `jwt-token-${Date.now()}`,
+        languagePreference,
+        token,
         enrolledCourses: ['course-1', 'course-2'],
       };
 
-      // Also cache locally as fallback
-      const usersKey = 'digimitra_users';
-      const users = JSON.parse(localStorage.getItem(usersKey) || '[]');
-      if (!users.some((u: any) => u.email === body.email)) {
-        users.push({ ...studentUser, password: body.password });
-        localStorage.setItem(usersKey, JSON.stringify(users));
-      }
+      // Always save to localStorage as reliable storage
+      users.push({ ...studentUser, password });
+      localStorage.setItem(usersKey, JSON.stringify(users));
 
       return { data: studentUser, status: 200 };
     }
 
-    // ── Login (Supabase Auth + fetch profile) ──
+    // ── Login (Supabase Auth + fetch profile + LocalStorage fallback) ──
     if (url.includes('/auth/login')) {
+      const email = (body.email || '').trim().toLowerCase();
+      const password = (body.password || '').trim();
+
       try {
         const { data: authData, error } = await supabase.auth.signInWithPassword({
-          email: body.email,
-          password: body.password,
+          email,
+          password,
         });
 
         if (error) {
           // Try localStorage fallback
           const usersKey = 'digimitra_users';
           const users = JSON.parse(localStorage.getItem(usersKey) || '[]');
-          const localUser = users.find((u: any) => u.email === body.email && u.password === body.password);
+          const localUser = users.find((u: any) => u.email?.trim().toLowerCase() === email && u.password === password);
           if (localUser) {
             const { password: _, ...userData } = localUser;
             return { data: userData, status: 200 };
@@ -596,8 +626,8 @@ const API = {
 
         const studentUser = {
           _id: user?.id || `user-${Date.now()}`,
-          name: profileData?.name || meta.name || meta.full_name || body.email?.split('@')[0] || 'Student',
-          email: user?.email || body.email,
+          name: profileData?.name || meta.name || meta.full_name || email.split('@')[0] || 'Student',
+          email: user?.email || email,
           mobile: profileData?.mobile || meta.mobile || '',
           studentClass: profileData?.student_class || meta.studentClass || 'Class 9th',
           role: profileData?.role || meta.role || 'student',
@@ -613,12 +643,12 @@ const API = {
         // Supabase down — try localStorage
         const usersKey = 'digimitra_users';
         const users = JSON.parse(localStorage.getItem(usersKey) || '[]');
-        const localUser = users.find((u: any) => u.email === body.email && u.password === body.password);
+        const localUser = users.find((u: any) => u.email?.trim().toLowerCase() === email && u.password === password);
         if (localUser) {
           const { password: _, ...userData } = localUser;
           return { data: userData, status: 200 };
         }
-        throw { response: { data: { message: 'Invalid email or password.' } } };
+        throw { response: { data: { message: 'Invalid email or password. Please check your credentials.' } } };
       }
     }
 
@@ -758,6 +788,33 @@ const API = {
 
     // ── Course Enrollment ──
     if (url.includes('/enroll')) {
+      const match = url.match(/\/courses\/([^\/]+)\/enroll/);
+      const targetCourseId = match?.[1] || body?.courseId;
+
+      if (currentUserId && currentUserId !== 'anonymous' && targetCourseId) {
+        const usersKey = 'digimitra_users';
+        const users = JSON.parse(localStorage.getItem(usersKey) || '[]');
+        const userIndex = users.findIndex((u: any) => (u._id === currentUserId || u.id === currentUserId));
+        if (userIndex !== -1) {
+          const enrolled = users[userIndex].enrolledCourses || [];
+          if (!enrolled.includes(targetCourseId)) {
+            users[userIndex].enrolledCourses = [...enrolled, targetCourseId];
+            localStorage.setItem(usersKey, JSON.stringify(users));
+          }
+        }
+
+        const storedUserInfo = localStorage.getItem('userInfo');
+        if (storedUserInfo) {
+          try {
+            const userInfoObj = JSON.parse(storedUserInfo);
+            const enrolled = userInfoObj.enrolledCourses || [];
+            if (!enrolled.includes(targetCourseId)) {
+              userInfoObj.enrolledCourses = [...enrolled, targetCourseId];
+              localStorage.setItem('userInfo', JSON.stringify(userInfoObj));
+            }
+          } catch { /* ignore */ }
+        }
+      }
       return { data: { message: 'Enrolled successfully' }, status: 200 };
     }
 

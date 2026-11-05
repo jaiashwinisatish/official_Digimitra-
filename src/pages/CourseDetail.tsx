@@ -15,7 +15,7 @@ const CourseDetail = () => {
   const { id } = useParams();
   const nav = useNavigate();
   const { t, language } = useLanguage();
-  const { user } = useAuth();
+  const { user, updateProfile } = useAuth();
   const queryClient = useQueryClient();
 
   const [summaryLesson, setSummaryLesson] = useState<any>(null);
@@ -41,14 +41,31 @@ const CourseDetail = () => {
 
   const enrollMutation = useMutation({
     mutationFn: async () => {
-      return await API.post(`/courses/${id}/enroll`);
+      const cId = course?._id || course?.id || id;
+      return await API.post(`/courses/${id}/enroll`, { courseId: cId });
     },
     onSuccess: () => {
+      const cId = course?._id || course?.id || id;
+      if (user && updateProfile) {
+        const currentEnrolled = user.enrolledCourses || [];
+        if (!currentEnrolled.includes(cId)) {
+          updateProfile({ enrolledCourses: [...currentEnrolled, cId] });
+        }
+      }
       queryClient.invalidateQueries({ queryKey: ["course", id] });
-      queryClient.invalidateQueries({ queryKey: ["user"] });
+      queryClient.invalidateQueries({ queryKey: ["progress", user?._id] });
       toast.success(language === "en" ? "Successfully enrolled!" : "यशस्वीरित्या नोंदणी झाली!");
     },
   });
+
+  const handleEnrollClick = () => {
+    if (!user) {
+      toast.info(language === "en" ? "Please create an account or sign in to enroll." : "कृपया नोंदणी करण्यासाठी आधी खाते तयार करा किंवा साइन इन करा.");
+      nav("/register");
+      return;
+    }
+    enrollMutation.mutate();
+  };
 
   if (isLoading) return <div className="container py-20 text-center">Loading course...</div>;
   if (error || !course) {
@@ -70,20 +87,20 @@ const CourseDetail = () => {
   const lessons = course.lessons || [];
   const hasUnitNumbers = lessons.some((l: any) => l.unitNumber !== undefined);
   const units = course.units || [
-    { 
-      unitNumber: 1, 
-      title: { en: "Unit 1: Getting Started with Word", mr: "वर्डसह सुरवात" }, 
-      lessons: hasUnitNumbers ? lessons.filter((l: any) => l.unitNumber === 1) : lessons.slice(0, 3) 
+    {
+      unitNumber: 1,
+      title: { en: "Unit 1: Getting Started with Word", mr: "वर्डसह सुरवात" },
+      lessons: hasUnitNumbers ? lessons.filter((l: any) => l.unitNumber === 1) : lessons.slice(0, 3)
     },
-    { 
-      unitNumber: 2, 
-      title: { en: "Unit 2: Font Group & File Options", mr: "फॉन्ट ग्रुप आणि फाईल पर्याय" }, 
-      lessons: hasUnitNumbers ? lessons.filter((l: any) => l.unitNumber === 2) : lessons.slice(3, 6) 
+    {
+      unitNumber: 2,
+      title: { en: "Unit 2: Font Group & File Options", mr: "फॉन्ट ग्रुप आणि फाईल पर्याय" },
+      lessons: hasUnitNumbers ? lessons.filter((l: any) => l.unitNumber === 2) : lessons.slice(3, 6)
     },
-    { 
-      unitNumber: 3, 
-      title: { en: "Unit 3: Paragraph formatting", mr: "परिच्छेद स्वरूपण" }, 
-      lessons: hasUnitNumbers ? lessons.filter((l: any) => l.unitNumber === 3) : lessons.slice(6, 9) 
+    {
+      unitNumber: 3,
+      title: { en: "Unit 3: Paragraph formatting", mr: "परिच्छेद स्वरूपण" },
+      lessons: hasUnitNumbers ? lessons.filter((l: any) => l.unitNumber === 3) : lessons.slice(6, 9)
     }
   ];
 
@@ -118,8 +135,8 @@ const CourseDetail = () => {
                 </Link>
               </Button>
             ) : (
-              <Button variant="hero" size="lg" className="mt-7" onClick={() => enrollMutation.mutate()} disabled={enrollMutation.isPending}>
-                {enrollMutation.isPending ? "Enrolling..." : t("enroll_now")}
+              <Button variant="hero" size="lg" className="mt-7" onClick={handleEnrollClick} disabled={enrollMutation.isPending}>
+                {enrollMutation.isPending ? (language === "en" ? "Enrolling..." : "नोंदणी होत आहे...") : ("enroll_now")}
               </Button>
             )}
           </motion.div>
@@ -171,16 +188,15 @@ const CourseDetail = () => {
                           to={`/courses/${courseId}/lesson/${lId}`}
                           className="flex items-center gap-4 p-4 rounded-2xl bg-muted/20 border border-border/60 hover:border-primary/40 hover:bg-card transition-smooth group"
                         >
-                          <div className={`h-9 w-9 rounded-xl flex items-center justify-center text-xs font-bold transition-smooth ${
-                            done ? "bg-success/20 text-success" : "bg-muted text-muted-foreground group-hover:gradient-primary group-hover:text-primary-foreground"
-                          }`}>
+                          <div className={`h-9 w-9 rounded-xl flex items-center justify-center text-xs font-bold transition-smooth ${done ? "bg-success/20 text-success" : "bg-muted text-muted-foreground group-hover:gradient-primary group-hover:text-primary-foreground"
+                            }`}>
                             {done ? <CheckCircle2 className="h-5 w-5 text-success" /> : String(l.lessonNumber || lIdx + 1).padStart(2, "0")}
                           </div>
                           <div className="flex-1 min-w-0">
                             <div className={`font-medium truncate ${language === "mr" ? "font-marathi" : ""}`}>{l.title?.[language] || l.title?.en || l.title}</div>
                             <div className="text-xs text-muted-foreground mt-0.5">{l.duration || "10:00"}</div>
                           </div>
-                          
+
                           {/* AI Video Summary Button */}
                           <button
                             title={language === "en" ? "AI Video Summary" : "AI व्हिडिओ सारांश"}

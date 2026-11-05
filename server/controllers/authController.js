@@ -12,7 +12,7 @@ const generateToken = (id) => {
 // @route   POST /api/auth/register
 // @access  Public
 const registerUser = asyncHandler(async (req, res) => {
-  const { name, email, password, role, languagePreference } = req.body;
+  const { name, email, password, role, languagePreference, mobile, studentClass } = req.body;
 
   const userExists = await User.findOne({ email });
 
@@ -25,6 +25,8 @@ const registerUser = asyncHandler(async (req, res) => {
     name,
     email,
     password,
+    mobile: mobile || '',
+    studentClass: studentClass || 'Class 9th',
     role: role || 'student',
     languagePreference: languagePreference || 'en'
   });
@@ -34,6 +36,8 @@ const registerUser = asyncHandler(async (req, res) => {
       _id: user._id,
       name: user.name,
       email: user.email,
+      mobile: user.mobile,
+      studentClass: user.studentClass,
       role: user.role,
       languagePreference: user.languagePreference,
       token: generateToken(user._id),
@@ -57,6 +61,8 @@ const loginUser = asyncHandler(async (req, res) => {
       _id: user._id,
       name: user.name,
       email: user.email,
+      mobile: user.mobile,
+      studentClass: user.studentClass,
       role: user.role,
       languagePreference: user.languagePreference,
       token: generateToken(user._id),

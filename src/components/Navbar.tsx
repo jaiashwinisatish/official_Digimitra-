@@ -121,9 +121,28 @@ export const Navbar = () => {
                 <Languages className="h-4 w-4 text-primary" />
                 <span>{language === "en" ? "Switch to मराठी" : "Switch to English"}</span>
               </button>
-              <Button variant="hero" className="mt-2" asChild>
-                <Link to="/dashboard" onClick={() => setOpen(false)}>{t("nav_signup")}</Link>
-              </Button>
+              {user ? (
+                <div className="flex flex-col gap-2 mt-2">
+                  <div className="px-4 py-1 text-sm font-semibold text-foreground">
+                    Hello, {user.name}
+                  </div>
+                  <Button variant="hero" asChild>
+                    <Link to="/dashboard" onClick={() => setOpen(false)}>{t("nav_dashboard")}</Link>
+                  </Button>
+                  <Button variant="outline" onClick={() => { logout(); setOpen(false); }}>
+                    Logout
+                  </Button>
+                </div>
+              ) : (
+                <div className="flex flex-col gap-2 mt-2">
+                  <Button variant="hero" asChild>
+                    <Link to="/register" onClick={() => setOpen(false)}>{t("nav_signup")}</Link>
+                  </Button>
+                  <Button variant="outline" asChild>
+                    <Link to="/login" onClick={() => setOpen(false)}>{t("nav_login")}</Link>
+                  </Button>
+                </div>
+              )}
             </div>
           </motion.div>
         )}

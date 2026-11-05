@@ -53,25 +53,25 @@ const Register = () => {
     setLoading(true);
     try {
       const { data } = await API.post("/auth/register", {
-        name,
-        email,
-        mobile,
+        name: name.trim(),
+        email: email.trim().toLowerCase(),
+        mobile: mobile.trim(),
         studentClass,
-        password,
+        password: password.trim(),
         languagePreference: language,
       });
 
       login(data);
       toast({
         title: language === "en" ? "Account Created!" : "खाते तयार झाले!",
-        description: language === "en" ? `Welcome to Digimitra, ${name}!` : `Digimitra मध्ये तुमचे स्वागत आहे, ${name}!`,
+        description: language === "en" ? `Welcome to Digimitra, ${name.trim()}!` : `Digimitra मध्ये तुमचे स्वागत आहे, ${name.trim()}!`,
       });
       navigate("/dashboard");
     } catch (error: any) {
       toast({
         variant: "destructive",
         title: language === "en" ? "Registration Failed" : "नोंदणी अयशस्वी",
-        description: error?.response?.data?.message || (language === "en" ? "Could not create account. Please try again." : "खाते तयार करता आले नाही. कृपया पुन्हा प्रयत्न करा."),
+        description: error?.response?.data?.message || error?.message || (language === "en" ? "Could not create account. Please try again." : "खाते तयार करता आले नाही. कृपया पुन्हा प्रयत्न करा."),
       });
     } finally {
       setLoading(false);

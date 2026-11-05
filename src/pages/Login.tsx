@@ -33,7 +33,10 @@ const Login = () => {
 
     setLoading(true);
     try {
-      const { data } = await API.post("/auth/login", { email, password });
+      const { data } = await API.post("/auth/login", {
+        email: email.trim().toLowerCase(),
+        password: password.trim(),
+      });
       login(data);
       toast({
         title: language === "en" ? "Welcome back!" : "पुन्हा स्वागत!",
@@ -44,7 +47,7 @@ const Login = () => {
       toast({
         variant: "destructive",
         title: language === "en" ? "Login Failed" : "लॉगिन अयशस्वी",
-        description: error?.response?.data?.message || (language === "en" ? "Invalid email or password. Please try again." : "चुकीचा ईमेल किंवा पासवर्ड. कृपया पुन्हा प्रयत्न करा."),
+        description: error?.response?.data?.message || error?.message || (language === "en" ? "Invalid email or password. Please try again." : "चुकीचा ईमेल किंवा पासवर्ड. कृपया पुन्हा प्रयत्न करा."),
       });
     } finally {
       setLoading(false);
