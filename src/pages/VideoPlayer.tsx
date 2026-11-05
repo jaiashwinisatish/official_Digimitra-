@@ -1,7 +1,7 @@
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { CheckCircle2, Circle, ChevronLeft, ChevronRight, ArrowLeft, BookOpen, FileText, Award, Download, Check, Loader2, ChevronDown, ChevronUp, PlayCircle, Folder, Sparkles, Send, Lock, HelpCircle } from "lucide-react";
+import { CheckCircle2, Circle, ChevronLeft, ChevronRight, ArrowLeft, BookOpen, FileText, Award, Download, Check, Loader2, ChevronDown, ChevronUp, PlayCircle, Folder, Sparkles, Send, Lock, HelpCircle, AlertTriangle, RotateCcw } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -28,6 +28,7 @@ export const VideoPlayer = () => {
   const [assignmentSubmitted, setAssignmentSubmitted] = useState<Record<string, boolean>>({});
   const [practicalInputs, setPracticalInputs] = useState<Record<string, string>>({});
   const [submittingPractical, setSubmittingPractical] = useState<string | null>(null);
+  const [retakeMode, setRetakeMode] = useState<Record<string, boolean>>({});
 
   const [autoPlayNext, setAutoPlayNext] = useState(true);
   const [summaryLesson, setSummaryLesson] = useState<any>(null);
@@ -152,7 +153,21 @@ export const VideoPlayer = () => {
         submissionText: text
       });
       queryClient.invalidateQueries({ queryKey: ["progress"] });
-      toast.success(language === "en" ? `Practical Checked by AI/Teacher! Grade: ${data?.result?.grade}%` : `AI द्वारे प्रात्यक्षिक तपासले गेले! गुण: ${data?.result?.grade}%`);
+      setRetakeMode(prev => ({ ...prev, [practicalId]: false }));
+
+      if (data?.result?.passed) {
+        toast.success(
+          language === "en"
+            ? `Assessment Passed! Score: ${data?.result?.grade}% (Min 70% required)`
+            : `मूल्यांकन उत्तीर्ण! गुण: ${data?.result?.grade}% (किमान ७०% आवश्यक)`
+        );
+      } else {
+        toast.error(
+          language === "en"
+            ? `Score: ${data?.result?.grade}%. Minimum 70% required to pass. Please review the feedback and retake the assessment.`
+            : `गुण: ${data?.result?.grade}%. उत्तीर्ण होण्यासाठी किमान ७०% आवश्यक आहेत. कृपया पुन्हा मूल्यांकन द्या.`
+        );
+      }
     } catch (e) {
       toast.error("Failed to submit practical task.");
     } finally {
@@ -316,8 +331,12 @@ export const VideoPlayer = () => {
 
                 {course.practicalTasks && course.practicalTasks.length > 0 ? (
                   course.practicalTasks.map((pt: any, pIdx: number) => {
-                    const isSubmitted = completedPracticals.has(pt._id);
                     const subInfo = practicalSubmissions[pt._id];
+                    const isSubmitted = !!subInfo;
+                    const isPassed = subInfo && subInfo.grade >= 70 && completedPracticals.has(pt._id);
+                    const isFailed = subInfo && !isPassed;
+                    const isRetaking = retakeMode[pt._id];
+                    const showInputForm = !isSubmitted || isFailed || isRetaking;
 
                     return (
                       <div key={pt._id || pIdx} className="p-8 rounded-3xl bg-card border border-border shadow-elegant space-y-6">
@@ -326,13 +345,17 @@ export const VideoPlayer = () => {
                             <div className="text-xs uppercase font-bold text-primary tracking-wider mb-1">Unit {pt.unitNumber} Practical Task</div>
                             <h4 className="text-xl font-bold">{pt.title?.[language] || pt.title?.en}</h4>
                           </div>
-                          {isSubmitted ? (
+                          {isPassed ? (
                             <span className="px-3 py-1.5 rounded-xl bg-success/15 text-success font-semibold text-xs flex items-center gap-1.5">
-                              <CheckCircle2 className="h-4 w-4" /> Passed ({subInfo?.grade || 95}%)
+                              <CheckCircle2 className="h-4 w-4" /> Passed ({subInfo.grade}%)
+                            </span>
+                          ) : isFailed ? (
+                            <span className="px-3 py-1.5 rounded-xl bg-destructive/15 text-destructive font-semibold text-xs flex items-center gap-1.5">
+                              <AlertTriangle className="h-4 w-4" /> Needs Improvement ({subInfo.grade}%) - Min 70% Required
                             </span>
                           ) : (
                             <span className="px-3 py-1.5 rounded-xl bg-amber-500/15 text-amber-600 font-semibold text-xs flex items-center gap-1.5">
-                              Pending Submission
+                              Pending Submission (Min 70% to Pass)
                             </span>
                           )}
                         </div>
@@ -342,44 +365,102 @@ export const VideoPlayer = () => {
                           <span>{pt.instructions?.[language] || pt.instructions?.en}</span>
                         </div>
 
-                        {/* Submission Form / Results */}
-                        {isSubmitted ? (
-                          <div className="p-5 rounded-2xl bg-success/10 border border-success/30 space-y-2">
+                        {/* Submission Feedback & Verification Card */}
+                        {isPassed && !isRetaking && (
+                          <div className="p-5 rounded-2xl bg-success/10 border border-success/30 space-y-3">
                             <div className="font-bold text-success text-sm flex items-center justify-between">
-                              <span>AI Teacher Feedback & Verification</span>
-                              <span>Grade: {subInfo?.grade}%</span>
+                              <span className="flex items-center gap-2">
+                                <CheckCircle2 className="h-4 w-4" /> AI Teacher Evaluation: Passed
+                              </span>
+                              <span>Score: {subInfo.grade}% (Passing: ≥70%)</span>
                             </div>
-                            <p className="text-xs text-foreground/80">{subInfo?.feedback}</p>
-                            <div className="text-[11px] text-muted-foreground italic pt-1">Submitted Answer: "{subInfo?.submissionText}"</div>
+                            <p className="text-xs text-foreground/80">{subInfo.feedback}</p>
+                            <div className="text-[11px] text-muted-foreground italic pt-1 border-t border-success/20">
+                              Submitted Answer: "{subInfo.submissionText}"
+                            </div>
+                            <div className="pt-2">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setRetakeMode(prev => ({ ...prev, [pt._id]: true }))}
+                                className="text-xs rounded-xl"
+                              >
+                                <RotateCcw className="h-3.5 w-3.5 mr-1" /> Retake Assessment to Improve Score
+                              </Button>
+                            </div>
                           </div>
-                        ) : (
+                        )}
+
+                        {isFailed && (
+                          <div className="p-5 rounded-2xl bg-destructive/10 border border-destructive/30 space-y-2">
+                            <div className="font-bold text-destructive text-sm flex items-center justify-between">
+                              <span className="flex items-center gap-2">
+                                <AlertTriangle className="h-4 w-4" /> Assessment Not Passed
+                              </span>
+                              <span>Score: {subInfo.grade}% (Min 70% Required)</span>
+                            </div>
+                            <p className="text-xs text-foreground/90 font-medium">{subInfo.feedback}</p>
+                            <div className="text-[11px] text-muted-foreground italic pt-1 border-t border-destructive/20">
+                              Previous Attempt: "{subInfo.submissionText}"
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Submission / Retake Input Form */}
+                        {showInputForm && (
                           <div className="space-y-4">
                             <div>
                               <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1 block">
-                                Enter your practical task steps or formatted text output:
+                                {isFailed
+                                  ? (language === "en" ? "Retake Assessment - Enter your corrected steps:" : "पुन्हा प्रयत्न करा - तुमचे दुरुस्त केलेले चरण प्रविष्ट करा:")
+                                  : isRetaking
+                                  ? (language === "en" ? "Retake Assessment - Enter new steps to improve score:" : "गुण सुधारण्यासाठी पुन्हा प्रयत्न करा:")
+                                  : (language === "en" ? "Enter your practical task steps or formatted text output:" : "तुमचे प्रात्यक्षिक कार्य चरण किंवा फॉरमॅट केलेला मजकूर प्रविष्ट करा:")}
                               </Label>
                               <Textarea
                                 rows={3}
-                                value={practicalInputs[pt._id] || ""}
+                                value={practicalInputs[pt._id] !== undefined ? practicalInputs[pt._id] : (isFailed ? subInfo.submissionText : "")}
                                 onChange={(e) => setPracticalInputs(prev => ({ ...prev, [pt._id]: e.target.value }))}
-                                placeholder="Describe the steps you performed in MS Word (e.g. Created title Digimitra Project in Arial 16pt Bold Center aligned)..."
+                                placeholder={language === "en" ? "Describe all the required steps and formatting you performed..." : "तुम्ही केलेले सर्व आवश्यक चरण आणि फॉरमॅटिंग वर्णन करा..."}
                                 className="rounded-2xl bg-muted/20"
                               />
                             </div>
-                            <Button
-                              onClick={() => handlePracticalSubmit(pt._id)}
-                              disabled={submittingPractical === pt._id}
-                              variant="hero"
-                              className="rounded-xl px-8"
-                            >
-                              {submittingPractical === pt._id ? (
-                                <Loader2 className="h-4 w-4 animate-spin" />
-                              ) : (
-                                <>
-                                  <Send className="h-4 w-4 mr-2" /> Submit for AI / Teacher Grading
-                                </>
+                            <div className="flex items-center gap-3">
+                              <Button
+                                onClick={() => handlePracticalSubmit(pt._id)}
+                                disabled={submittingPractical === pt._id}
+                                variant="hero"
+                                className="rounded-xl px-8"
+                              >
+                                {submittingPractical === pt._id ? (
+                                  <Loader2 className="h-4 w-4 animate-spin" />
+                                ) : (
+                                  <>
+                                    {isFailed || isRetaking ? (
+                                      <>
+                                        <RotateCcw className="h-4 w-4 mr-2" />
+                                        {language === "en" ? "Submit Retake for Grading" : "पुन्हा तपासणीसाठी सादर करा"}
+                                      </>
+                                    ) : (
+                                      <>
+                                        <Send className="h-4 w-4 mr-2" />
+                                        {language === "en" ? "Submit for AI / Teacher Grading" : "तपासणीसाठी सादर करा"}
+                                      </>
+                                    )}
+                                  </>
+                                )}
+                              </Button>
+                              {isRetaking && isPassed && (
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => setRetakeMode(prev => ({ ...prev, [pt._id]: false }))}
+                                  className="text-xs"
+                                >
+                                  Cancel Retake
+                                </Button>
                               )}
-                            </Button>
+                            </div>
                           </div>
                         )}
                       </div>
@@ -460,8 +541,8 @@ export const VideoPlayer = () => {
                 <h2 className="text-3xl font-bold mb-3">{language === "en" ? "Course Certificate" : "अभ्यासक्रम प्रमाणपत्र"}</h2>
                 <p className="text-muted-foreground max-w-md mx-auto mb-8 text-sm">
                   {isCertificateUnlocked 
-                    ? (language === "en" ? "Congratulations! You have successfully completed all lessons and practical tasks. You can now download your official certificate." : "अभिनंदन! तुम्ही सर्व धडे आणि प्रात्यक्षिक कार्ये यशस्वीपणे पूर्ण केली आहेत. तुम्ही आता तुमचे प्रमाणपत्र डाउनलोड करू शकता.")
-                    : (language === "en" ? "Complete 100% of video lessons AND all practical tasks to unlock your certificate." : "तुमचे प्रमाणपत्र मिळवण्यासाठी सर्व धडे आणि प्रात्यक्षिक कार्ये पूर्ण करा.")
+                    ? (language === "en" ? "Congratulations! You have completed all video lessons and passed all practical assessments with at least 70%. You can now download your official certificate." : "अभिनंदन! तुम्ही सर्व धडे पूर्ण केले आहेत आणि प्रत्येक प्रात्यक्षिक परीक्षेत किमान ७०% गुणांसह उत्तीर्ण झाला आहात. आता तुम्ही प्रमाणपत्र डाउनलोड करू शकता.")
+                    : (language === "en" ? "Complete 100% of video lessons AND score at least 70% on all practical assessments to unlock your certificate." : "प्रमाणपत्र अनलॉक करण्यासाठी सर्व व्हिडिओ १००% पहा आणि प्रत्येक प्रात्यक्षिक परीक्षेत किमान ७०% गुण मिळवा.")
                   }
                 </p>
 
@@ -478,9 +559,12 @@ export const VideoPlayer = () => {
                   <div className="flex items-center justify-between text-sm">
                     <span className="flex items-center gap-2">
                       {isPracticalsDone ? <CheckCircle2 className="h-4 w-4 text-success" /> : <Lock className="h-4 w-4 text-amber-500" />}
-                      Practical Tasks Completed ({completedPracticals.size}/{totalPracticalCount})
+                      Practical Assessments Passed ({completedPracticals.size}/{totalPracticalCount})
                     </span>
-                    <span className="font-bold">{isPracticalsDone ? "Done" : "Pending"}</span>
+                    <span className="font-bold">{isPracticalsDone ? "All Passed (≥70%)" : `${completedPracticals.size}/${totalPracticalCount} Passed`}</span>
+                  </div>
+                  <div className="text-xs text-muted-foreground pt-1 border-t border-border/50">
+                    * Minimum 70% score required on each practical assessment to unlock your certificate.
                   </div>
                 </div>
                 

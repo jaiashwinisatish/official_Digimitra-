@@ -396,7 +396,7 @@ const API = {
           response: {
             status: 403,
             data: {
-              message: "Certificate is locked! Complete 100% of video lessons and all practical tasks to unlock your certificate."
+              message: "Certificate is locked! Complete 100% of video lessons and score at least 70% on all practical assessments to unlock your certificate."
             }
           }
         };

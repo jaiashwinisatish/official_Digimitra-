@@ -48,7 +48,7 @@ const Certificate = () => {
 
   const handlePdfDownload = () => {
     if (!isUnlocked) {
-      toast.error(language === "en" ? "Certificate is locked until you complete 100% of the course!" : "अभ्यासक्रम १००% पूर्ण करेपर्यंत प्रमाणपत्र लॉक केलेले आहे!");
+      toast.error(language === "en" ? "Certificate is locked until you complete 100% of video lessons and score at least 70% on all practical assessments!" : "अभ्यासक्रम १००% पूर्ण करेपर्यंत आणि प्रात्यक्षिकांमध्ये किमान ७०% गुण मिळेपर्यंत प्रमाणपत्र लॉक केलेले आहे!");
       return;
     }
     toast.info(language === "en" ? "Generating certificate PDF..." : "प्रमाणपत्र PDF तयार होत आहे...");
@@ -114,8 +114,8 @@ const Certificate = () => {
             <h2 className="text-2xl md:text-3xl font-bold mt-2">{courseTitle}</h2>
             <p className="text-sm text-muted-foreground mt-2 max-w-md mx-auto">
               {language === "en"
-                ? "You must complete 100% of video lessons and submit all practical tasks to earn this official certificate."
-                : "हे अधिकृत प्रमाणपत्र मिळवण्यासाठी तुम्हाला १००% व्हिडिओ धडे पूर्ण करावे लागतील आणि सर्व प्रात्यक्षिक कार्ये सादर करावी लागतील."}
+                ? "You must complete 100% of video lessons and score at least 70% on all practical assessments to earn this official certificate."
+                : "हे अधिकृत प्रमाणपत्र मिळवण्यासाठी तुम्हाला १००% व्हिडिओ धडे पूर्ण करावे लागतील आणि प्रत्येक प्रात्यक्षिक परीक्षेत किमान ७०% गुण मिळवावे लागतील."}
             </p>
           </div>
 
@@ -140,7 +140,7 @@ const Certificate = () => {
               <div className="flex items-center justify-between pt-2">
                 <span className="flex items-center gap-2">
                   <FileCheck className="h-4 w-4 text-primary" />
-                  {language === "en" ? "Practical Tasks Submitted" : "प्रात्यक्षिक कार्ये जमा केली"}
+                  {language === "en" ? "Practical Assessments (Min 70% Required)" : "प्रात्यक्षिक परीक्षा (किमान ७०% आवश्यक)"}
                 </span>
                 <span className="font-bold">
                   {completedPracticalsCount} / {totalPracticals} {isAllPracticalsDone ? "✅" : ""}

@@ -736,6 +736,297 @@ export function updateWatchProgress(courseId: string, lessonId: string, currentS
   return progressItem;
 }
 
+// ─── Practical Assessment Evaluation Engine ───
+export const MIN_PASSING_ASSESSMENT_SCORE = 70;
+
+export function evaluatePracticalTask(courseId: string, practicalId: string, submissionText: string): { grade: number; feedback: string; passed: boolean } {
+  const trimmed = (submissionText || "").trim();
+  const textLower = trimmed.toLowerCase();
+
+  // If answer is empty or too short / gibberish
+  if (textLower.length < 8) {
+    return {
+      grade: 15,
+      passed: false,
+      feedback: "Answer is too short or incomplete. Please provide full step-by-step details meeting the task criteria (minimum 70% required to pass)."
+    };
+  }
+
+  // ─────────────────────────────────────────────────────────────
+  // Course 1: Microsoft Word Masterclass
+  // ─────────────────────────────────────────────────────────────
+  if (practicalId === "prac-1-1") {
+    // Instructions: Type heading 'Digimitra Digital School Project', font Arial, size 16pt, Bold, Center aligned, 2 sentences.
+    const hasHeading = textLower.includes("digimitra") || textLower.includes("digital school") || textLower.includes("school project") || textLower.includes("project") || textLower.includes("heading") || textLower.includes("title");
+    const hasFont = textLower.includes("arial");
+    const hasSize = textLower.includes("16") || textLower.includes("16pt") || textLower.includes("16 pt") || textLower.includes("size");
+    const hasBold = textLower.includes("bold");
+    const hasCenter = textLower.includes("center") || textLower.includes("centered") || textLower.includes("align");
+
+    const matchedCount = [hasHeading, hasFont, hasSize, hasBold, hasCenter].filter(Boolean).length;
+
+    if (matchedCount >= 4) {
+      return {
+        grade: matchedCount === 5 ? 100 : 92,
+        passed: true,
+        feedback: "Outstanding work! All key formatting criteria (Title, Arial font, 16pt, Bold, Center alignment) were verified successfully."
+      };
+    } else if (matchedCount === 3) {
+      return {
+        grade: 75,
+        passed: true,
+        feedback: "Good work! You met the passing requirements (75%). To score higher, make sure all requested formatting elements are included."
+      };
+    } else if (matchedCount === 2) {
+      return {
+        grade: 50,
+        passed: false,
+        feedback: "Score: 50%. Did not meet the 70% passing threshold. Missing core formatting (Heading, Arial, 16pt, Bold, Center alignment). Please review and retake the assessment."
+      };
+    } else if (matchedCount === 1) {
+      return {
+        grade: 30,
+        passed: false,
+        feedback: "Score: 30%. Most required elements are missing. Minimum 70% required to pass. Please review the lesson and retake the assessment."
+      };
+    } else {
+      return {
+        grade: 10,
+        passed: false,
+        feedback: "Score: 10%. The submitted text does not match the document title and formatting criteria. Minimum 70% required to pass. Please retake."
+      };
+    }
+  }
+
+  if (practicalId === "prac-1-2") {
+    // Instructions: Subscript for H2O, Superscript for E=mc2, Highlight H2O with yellow.
+    const hasSubscript = textLower.includes("subscript") || textLower.includes("sub-script") || textLower.includes("sub script") || textLower.includes("h2o") || textLower.includes("h₂o");
+    const hasFormula = textLower.includes("h2o") || textLower.includes("h₂o") || textLower.includes("water");
+    const hasSuperscript = textLower.includes("superscript") || textLower.includes("super-script") || textLower.includes("mc2") || textLower.includes("mc²") || textLower.includes("exponent") || textLower.includes("e=mc2") || textLower.includes("e = mc2");
+    const hasHighlight = textLower.includes("highlight") || textLower.includes("yellow") || textLower.includes("color");
+
+    const matchedCount = [hasSubscript, hasFormula, hasSuperscript, hasHighlight].filter(Boolean).length;
+
+    if (matchedCount >= 3) {
+      return {
+        grade: matchedCount === 4 ? 98 : 85,
+        passed: true,
+        feedback: "Excellent! Subscript (H₂O), Superscript (E=mc²), and text highlighting were applied accurately."
+      };
+    } else if (matchedCount === 2) {
+      return {
+        grade: 72,
+        passed: true,
+        feedback: "Passed with 72%! Minimum threshold met. For maximum marks, ensure Subscript, Superscript, and Yellow Highlight are all shown."
+      };
+    } else if (matchedCount === 1) {
+      return {
+        grade: 40,
+        passed: false,
+        feedback: "Score: 40%. Only 1 required formatting element was detected. Minimum 70% required to pass. Please retake the assessment."
+      };
+    } else {
+      return {
+        grade: 15,
+        passed: false,
+        feedback: "Score: 15%. Subscript, Superscript, and Highlight formatting were missing. Minimum 70% required to pass. Please retake."
+      };
+    }
+  }
+
+  if (practicalId === "prac-1-3") {
+    // Instructions: Bulleted list of 3 hardware parts (CPU, RAM, Hard Disk), 1.5 line spacing, light blue shading.
+    const hasBullets = textLower.includes("bullet") || textLower.includes("list") || textLower.includes("•") || textLower.includes("-");
+    const hardwareMatches = (textLower.includes("cpu") ? 1 : 0) + (textLower.includes("ram") ? 1 : 0) + (textLower.includes("hard disk") || textLower.includes("hdd") ? 1 : 0);
+    const hasHardware = hardwareMatches >= 2;
+    const hasSpacing = textLower.includes("1.5") || textLower.includes("line spacing") || textLower.includes("spacing");
+    const hasShading = textLower.includes("shading") || textLower.includes("blue") || textLower.includes("border") || textLower.includes("background");
+
+    const matchedCount = [hasBullets, hasHardware, hasSpacing, hasShading].filter(Boolean).length;
+
+    if (matchedCount >= 3) {
+      return {
+        grade: matchedCount === 4 ? 98 : 85,
+        passed: true,
+        feedback: "Great execution! Bulleted list, line spacing, and paragraph shading were verified successfully."
+      };
+    } else if (matchedCount === 2) {
+      return {
+        grade: 70,
+        passed: true,
+        feedback: "Passed with 70%! Minimum requirement met. For higher marks, ensure bulleted list, 1.5 spacing, and light blue shading are all covered."
+      };
+    } else if (matchedCount === 1) {
+      return {
+        grade: 35,
+        passed: false,
+        feedback: "Score: 35%. Minimum 70% required to pass. Missing bulleted list, line spacing, or background shading. Please retake the assessment."
+      };
+    } else {
+      return {
+        grade: 10,
+        passed: false,
+        feedback: "Score: 10%. Submission does not address bulleted lists and paragraph formatting. Minimum 70% required. Please retake."
+      };
+    }
+  }
+
+  // ─────────────────────────────────────────────────────────────
+  // Course 2: Introduction to Computers
+  // ─────────────────────────────────────────────────────────────
+  if (practicalId === "prac-2-1") {
+    // Instructions: Identify 5 parts (e.g. Monitor, Keyboard, Mouse, CPU, Speakers) and describe in 1 sentence each.
+    const parts = ["monitor", "keyboard", "mouse", "cpu", "speaker", "speakers", "printer", "scanner", "webcam", "microphone", "screen", "hard disk", "hdd", "ram", "rom"];
+    let recognizedParts = 0;
+    for (const part of parts) {
+      if (textLower.includes(part)) {
+        recognizedParts++;
+      }
+    }
+
+    const hasDescriptions = textLower.includes("display") || textLower.includes("type") || textLower.includes("click") || textLower.includes("brain") || textLower.includes("sound") || textLower.includes("print") || textLower.includes("used") || textLower.includes("processes") || textLower.includes("shows") || textLower.includes("inputs") || textLower.includes("audio");
+
+    if (recognizedParts >= 5 && hasDescriptions) {
+      return {
+        grade: 96,
+        passed: true,
+        feedback: "Excellent! Identified 5+ computer parts with correct functional descriptions."
+      };
+    } else if (recognizedParts >= 4) {
+      return {
+        grade: 85,
+        passed: true,
+        feedback: "Good work! You identified 4 parts correctly with descriptions."
+      };
+    } else if (recognizedParts >= 3) {
+      return {
+        grade: 72,
+        passed: true,
+        feedback: "Passed with 72%! Minimum requirement met (at least 3 parts identified). For 100%, please include at least 5 parts."
+      };
+    } else if (recognizedParts >= 1) {
+      return {
+        grade: 40,
+        passed: false,
+        feedback: `Score: 40%. You only identified ${recognizedParts} part(s). Minimum 70% required to pass. Please list at least 5 computer parts and their functions, then retake the assessment.`
+      };
+    } else {
+      return {
+        grade: 10,
+        passed: false,
+        feedback: "Score: 10%. No valid computer hardware parts were identified in your answer. Minimum 70% required to pass. Please retake the assessment."
+      };
+    }
+  }
+
+  if (practicalId === "prac-2-2") {
+    // Instructions: Compare RAM and ROM. List at least 3 differences and 1 example of each.
+    const hasRAM = textLower.includes("ram") || textLower.includes("random access");
+    const hasROM = textLower.includes("rom") || textLower.includes("read only");
+    const hasVolatile = textLower.includes("volatile") || textLower.includes("temporary") || textLower.includes("permanent") || textLower.includes("non-volatile") || textLower.includes("nonvolatile") || textLower.includes("power") || textLower.includes("loses");
+    const hasDifferences = textLower.includes("difference") || textLower.includes("speed") || textLower.includes("fast") || textLower.includes("slow") || textLower.includes("bios") || textLower.includes("startup") || textLower.includes("ddr") || textLower.includes("storage") || textLower.includes("chip") || textLower.includes("boot");
+
+    const criteria = [hasRAM, hasROM, hasVolatile, hasDifferences].filter(Boolean).length;
+
+    if (criteria === 4) {
+      return {
+        grade: 95,
+        passed: true,
+        feedback: "Outstanding comparison! Key differences between RAM (volatile/temporary) and ROM (non-volatile/permanent) clearly articulated."
+      };
+    } else if (hasRAM && hasROM && (hasVolatile || hasDifferences)) {
+      return {
+        grade: 78,
+        passed: true,
+        feedback: "Good answer! You highlighted major differences between RAM and ROM to pass with 78%."
+      };
+    } else if (hasRAM && hasROM) {
+      return {
+        grade: 70,
+        passed: true,
+        feedback: "Passed with 70%! Minimum requirement met. Try to provide more concrete comparison points between RAM and ROM for a higher score."
+      };
+    } else if (hasRAM || hasROM) {
+      return {
+        grade: 45,
+        passed: false,
+        feedback: "Score: 45%. You only discussed one memory type. Minimum 70% required to pass. Please compare BOTH RAM and ROM and retake the assessment."
+      };
+    } else {
+      return {
+        grade: 15,
+        passed: false,
+        feedback: "Score: 15%. RAM and ROM comparison criteria were not addressed. Minimum 70% required to pass. Please retake the assessment."
+      };
+    }
+  }
+
+  if (practicalId === "prac-2-3") {
+    // Instructions: List 5 input devices and 5 output devices with 1 sentence usage.
+    const inputs = ["keyboard", "mouse", "scanner", "microphone", "mic", "webcam", "camera", "touchscreen", "joystick", "barcode"];
+    const outputs = ["monitor", "printer", "speaker", "speakers", "projector", "headphones", "screen", "plotter"];
+
+    let inputCount = 0;
+    for (const inp of inputs) {
+      if (textLower.includes(inp)) inputCount++;
+    }
+
+    let outputCount = 0;
+    for (const out of outputs) {
+      if (textLower.includes(out)) outputCount++;
+    }
+
+    const totalDevices = inputCount + outputCount;
+
+    if (inputCount >= 3 && outputCount >= 3 && totalDevices >= 8) {
+      return {
+        grade: 98,
+        passed: true,
+        feedback: "Excellent classification! Detailed list of input and output devices with daily usage descriptions."
+      };
+    } else if (inputCount >= 2 && outputCount >= 2) {
+      return {
+        grade: 82,
+        passed: true,
+        feedback: "Good work! Both input and output categories were successfully populated."
+      };
+    } else if ((inputCount >= 2 && outputCount >= 1) || (inputCount >= 1 && outputCount >= 2)) {
+      return {
+        grade: 70,
+        passed: true,
+        feedback: "Passed with 70%! Minimum threshold reached. For a higher score, list at least 5 input and 5 output devices."
+      };
+    } else if (totalDevices >= 2) {
+      return {
+        grade: 45,
+        passed: false,
+        feedback: `Score: 45%. Identified ${inputCount} input and ${outputCount} output device(s). Minimum 70% required to pass. Please list both input and output devices and retake the assessment.`
+      };
+    } else {
+      return {
+        grade: 15,
+        passed: false,
+        feedback: "Score: 15%. Valid input/output device classification was not found. Minimum 70% required to pass. Please retake the assessment."
+      };
+    }
+  }
+
+  // Generic fallback for any other task:
+  if (textLower.length < 25) {
+    return {
+      grade: 30,
+      passed: false,
+      feedback: "Score: 30%. Answer is too brief to demonstrate full task mastery. Minimum 70% required to pass. Please provide more detailed steps and retake."
+    };
+  }
+
+  return {
+    grade: 75,
+    passed: true,
+    feedback: "Task completed satisfactorily with relevant descriptive steps."
+  };
+}
+
 export function submitPracticalTask(courseId: string, practicalId: string, submissionText: string, userId?: string) {
   const effectiveUserId = userId || INITIAL_MOCK_USER._id;
   const userProgressList = getUserProgress(effectiveUserId);
@@ -745,42 +1036,14 @@ export function submitPracticalTask(courseId: string, practicalId: string, submi
   );
 
   const targetCourse = INITIAL_MOCK_COURSES.find((c: any) => c._id === courseId || c.id === courseId) || INITIAL_MOCK_COURSES[0];
+  const totalLessons = targetCourse?.lessons?.length || 1;
+  const totalPracticals = targetCourse?.practicalTasks?.length || 0;
 
-  // AI Evaluation logic for practical check
-  let score = 90;
-  let feedback = "Excellent practical execution! All key criteria were met successfully.";
-
-  const textLower = submissionText.toLowerCase();
-
-  if (courseId === "course-2") {
-    const keywords = ['monitor', 'keyboard', 'ram', 'rom', 'hdd', 'ssd', 'input', 'output'];
-    let keywordCount = 0;
-    for (const kw of keywords) {
-      if (textLower.includes(kw)) {
-        keywordCount++;
-      }
-    }
-
-    if (textLower.length < 15) {
-      score = 70;
-      feedback = "Good attempt! Make sure to include more details for maximum score.";
-    } else if (keywordCount >= 2) {
-      score = 98;
-      feedback = "Outstanding! AI Evaluator confirmed all requested concepts were identified correctly.";
-    } else if (keywordCount === 1) {
-      score = 85;
-      feedback = "Good work! You identified some key concepts, but try to include more details next time.";
-    }
-  } else {
-    // Course 1 fallback
-    if (textLower.length < 15) {
-      score = 70;
-      feedback = "Good attempt! Make sure to include full step details for maximum score.";
-    } else if (textLower.includes("arial") || textLower.includes("bold") || textLower.includes("subscript") || textLower.includes("bullet")) {
-      score = 98;
-      feedback = "Outstanding! AI Evaluator confirmed all requested MS Word formatting options were applied correctly.";
-    }
-  }
+  // Accurate assessment evaluation
+  const evaluation = evaluatePracticalTask(courseId, practicalId, submissionText);
+  const score = evaluation.grade;
+  const feedback = evaluation.feedback;
+  const isPassed = evaluation.passed; // strictly score >= 70
 
   if (!progressItem) {
     progressItem = {
@@ -788,29 +1051,50 @@ export function submitPracticalTask(courseId: string, practicalId: string, submi
       user: effectiveUserId,
       courseId: targetCourse,
       completedLessons: [],
-      completedPracticals: [practicalId],
+      completedPracticals: isPassed ? [practicalId] : [],
       practicalSubmissions: {
-        [practicalId]: { submissionText, grade: score, feedback, submittedAt: new Date().toISOString() }
+        [practicalId]: {
+          submissionText,
+          grade: score,
+          feedback,
+          passed: isPassed,
+          submittedAt: new Date().toISOString()
+        }
       },
       watchPositions: {},
       watchPercentages: {},
-      progressPercentage: 10
+      progressPercentage: isPassed && (totalLessons + totalPracticals > 0) ? Math.round((1 / (totalLessons + totalPracticals)) * 100) : 0
     };
     userProgressList.push(progressItem);
   } else {
     progressItem.completedPracticals = progressItem.completedPracticals || [];
-    if (!progressItem.completedPracticals.includes(practicalId)) {
-      progressItem.completedPracticals.push(practicalId);
+
+    // Strictly enforce: ONLY add to completedPracticals if score >= 70%
+    if (isPassed) {
+      if (!progressItem.completedPracticals.includes(practicalId)) {
+        progressItem.completedPracticals.push(practicalId);
+      }
+    } else {
+      // If retake scored < 70%, remove from completedPracticals
+      progressItem.completedPracticals = progressItem.completedPracticals.filter((id: string) => id !== practicalId);
     }
+
     progressItem.practicalSubmissions = progressItem.practicalSubmissions || {};
     progressItem.practicalSubmissions[practicalId] = {
       submissionText,
       grade: score,
       feedback,
+      passed: isPassed,
       submittedAt: new Date().toISOString()
     };
+
+    const compLessons = progressItem.completedLessons?.length || 0;
+    const compPracticals = progressItem.completedPracticals?.length || 0;
+    if (totalLessons + totalPracticals > 0) {
+      progressItem.progressPercentage = Math.round(((compLessons + compPracticals) / (totalLessons + totalPracticals)) * 100);
+    }
   }
 
   saveUserProgress(effectiveUserId, userProgressList);
-  return { progressItem, result: { grade: score, feedback } };
+  return { progressItem, result: { grade: score, feedback, passed: isPassed } };
 }
