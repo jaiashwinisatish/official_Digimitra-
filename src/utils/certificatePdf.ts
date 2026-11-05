@@ -172,3 +172,4 @@ export function downloadCertificatePDF(data: CertificateData, filename?: string)
   link.remove();
   window.URL.revokeObjectURL(url);
 }
+

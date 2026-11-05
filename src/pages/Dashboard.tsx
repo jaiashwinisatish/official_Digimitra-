@@ -27,7 +27,7 @@ const Dashboard = () => {
 
   const progress = Array.isArray(rawProgress) && rawProgress.length > 0 ? rawProgress : getUserProgress(user?._id || "anonymous");
 
-  if (isLoading && (!rawProgress || rawProgress.length === 0)) {
+  if (isLoading && (!progress || progress.length === 0)) {
     return (
       <div className="container py-20 text-center flex flex-col items-center justify-center gap-3">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />

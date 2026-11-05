@@ -65,3 +65,4 @@ describe("Certificate PDF Generation Flow", () => {
     expect(res.data.size).toBeGreaterThan(1000);
   });
 });
+

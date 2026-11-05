@@ -23,7 +23,7 @@ const Courses = () => {
 
   const coursesList = Array.isArray(rawCourses) && rawCourses.length > 0 ? rawCourses : INITIAL_MOCK_COURSES;
 
-  if (isLoading && (!rawCourses || rawCourses.length === 0)) {
+  if (isLoading && (!coursesList || coursesList.length === 0)) {
     return (
       <div className="container py-20 text-center flex flex-col items-center justify-center gap-3">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
